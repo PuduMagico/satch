@@ -5477,6 +5477,9 @@ failed_literal_probing(struct satch *solver)
             return res = 10;
     }
 
+if (!solver ->unassigned)
+            return res = 10;
+
   int change = 1;
   while (change){
     change = 0;
@@ -5502,14 +5505,12 @@ failed_literal_probing(struct satch *solver)
             assign(solver, lit, 0);
             change++;
         } else { 
-            printf("nothing happened, we backtrack only\n");
             backtrack(solver, solver->level - 1);
         }
     }
   }
 
   res = solver->inconsistent ? 20 : 0;
-  printf("out of failed literal probing\n");
   return res;
 }
 
