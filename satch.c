@@ -5467,50 +5467,52 @@ failed_literal_probing(struct satch *solver)
 
   if ((conflict = boolean_constraint_propagation(solver))) {
             if (!analyze_conflict(solver, conflict))
-                return res = 20;
+            return res = 20;
+  
     } else {
         if (solver->iterate)
             iterate(solver);
 
-        if (!solver->unassigned)
+        if (!solver ->unassigned)
             return res = 10;
     }
 
-
+    
   int change = 1;
   while (change){
     change = 0;
-    for (int idx = 0; idx < (int)solver->size; idx++) {
-
-        solver->level++;
+    for (unsigned int idx = 0; idx < solver->size; idx++) {
 
         const unsigned lit = LITERAL(idx);
 
         if (solver->values[lit]){
-            break;
+            continue;
         }
+
+        INC (decisions);
+
+        assert(solver->unassigned);
+        assert(!solver->inconsistent);
+        assert(solver->level < solver->size);
+        solver->level++;
+
+
 
         assign(solver, NOT(lit), 0);
 
         if ((conflict = boolean_constraint_propagation(solver))) {
-            // printf("conflict found, the other decision is necessary\n");
             backtrack(solver, solver->level - 1);
             assign(solver, lit, 0);
             change++;
         } else { 
-            // printf("nothing happened, we backtrack only\n");
+            printf("nothing happened, we backtrack only\n");
             backtrack(solver, solver->level - 1);
         }
     }
-    // printf("out of loop, counter %d\n", change);
-}
+  }
 
-//   report(solver, '*');
-    // printf("checking conflict\n");
         if ((conflict = boolean_constraint_propagation(solver))) {
-            // printf("conflict found\n");
-            // if (!analyze_conflict(solver, conflict))
-                return res = 20;
+            return res = 20;
     } else {
         if (solver->iterate)
             iterate(solver);
@@ -5520,7 +5522,7 @@ failed_literal_probing(struct satch *solver)
     }
 
   res = solver->inconsistent ? 20 : 0;
-  printf("put of failed literal probing\n");
+  printf("out of failed literal probing\n");
   return res;
 }
 
@@ -5535,9 +5537,7 @@ solve(struct satch *solver, int delta_limit) {
     struct clause *conflict;
 
     if (!res){
-    //   check_solver(solver);
       res = failed_literal_probing(solver);
-    //   check_solver(solver);
     }
 
     uint64_t conflict_limit =
