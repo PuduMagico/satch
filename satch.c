@@ -5477,7 +5477,6 @@ failed_literal_probing(struct satch *solver)
             return res = 10;
     }
 
-    
   int change = 1;
   while (change){
     change = 0;
@@ -5496,8 +5495,6 @@ failed_literal_probing(struct satch *solver)
         assert(solver->level < solver->size);
         solver->level++;
 
-
-
         assign(solver, NOT(lit), 0);
 
         if ((conflict = boolean_constraint_propagation(solver))) {
@@ -5510,16 +5507,6 @@ failed_literal_probing(struct satch *solver)
         }
     }
   }
-
-        if ((conflict = boolean_constraint_propagation(solver))) {
-            return res = 20;
-    } else {
-        if (solver->iterate)
-            iterate(solver);
-
-        if (!solver->unassigned)
-            return res = 10;
-    }
 
   res = solver->inconsistent ? 20 : 0;
   printf("out of failed literal probing\n");
