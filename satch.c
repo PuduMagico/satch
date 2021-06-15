@@ -5477,9 +5477,9 @@ failed_literal_probing(struct satch *solver)
             return res = 10;
     }
 
-if (!solver ->unassigned)
-            return res = 10;
-
+    if (!solver ->unassigned)
+                return res = 10;
+  int literals_found = 0;
   int change = 1;
   while (change){
     change = 0;
@@ -5504,12 +5504,36 @@ if (!solver ->unassigned)
             backtrack(solver, solver->level - 1);
             assign(solver, lit, 0);
             change++;
+            literals_found++;
         } else { 
             backtrack(solver, solver->level - 1);
         }
+
+        if (solver->values[lit]){
+            continue;
+        }
+
+        INC (decisions);
+
+        assert(solver->unassigned);
+        assert(!solver->inconsistent);
+        assert(solver->level < solver->size);
+        solver->level++;
+
+        assign(solver, lit, 0);
+        if ((conflict = boolean_constraint_propagation(solver))) {
+            backtrack(solver, solver->level - 1);
+            assign(solver, NOT(lit), 0);
+            change++;
+            literals_found++;
+        } else { 
+            backtrack(solver, solver->level - 1);
+        }
+
     }
   }
-
+printf("c literals found: %d\n", literals_found);
+printf("c size of the problem reduced to: %d\n", (int)solver->size - literals_found);
   res = solver->inconsistent ? 20 : 0;
   return res;
 }
