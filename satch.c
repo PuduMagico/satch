@@ -5481,21 +5481,24 @@ failed_literal_probing(struct satch *solver)
                 return res = 10;
   int literals_found = 0;
   int change = 1;
+  int stamps[solver->size];
+  bool first_run = true;
+
   while (change){
     change = 0;
     for (unsigned int idx = 0; idx < solver->size; idx++) {
-
         const unsigned lit = LITERAL(idx);
+
+        if (first_run)
+            stamps[idx] = 0;
 
         if (solver->values[lit]){
             continue;
         }
 
-        INC (decisions);
+        if (!first_run && stamps[idx] == 0)
+            continue;
 
-        assert(solver->unassigned);
-        assert(!solver->inconsistent);
-        assert(solver->level < solver->size);
         solver->level++;
 
         assign(solver, NOT(lit), 0);
@@ -5512,17 +5515,16 @@ failed_literal_probing(struct satch *solver)
             }
         } else { 
             backtrack(solver, solver->level - 1);
+            stamps[idx] = change;
         }
 
         if (solver->values[lit]){
             continue;
         }
 
-        INC (decisions);
+        if (!first_run && stamps[idx] == 0)
+            continue;
 
-        assert(solver->unassigned);
-        assert(!solver->inconsistent);
-        assert(solver->level < solver->size);
         solver->level++;
 
         assign(solver, lit, 0);
@@ -5538,9 +5540,10 @@ failed_literal_probing(struct satch *solver)
             }
         } else { 
             backtrack(solver, solver->level - 1);
+            stamps[idx] = change;
         }
-
     }
+    first_run = false;
   }
 printf("c literals found: %d\n", literals_found);
 printf("c size of the problem reduced to: %d\n", (int)solver->size - literals_found);
