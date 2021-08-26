@@ -5505,6 +5505,11 @@ failed_literal_probing(struct satch *solver)
             assign(solver, lit, 0);
             change++;
             literals_found++;
+            if (solver->proof){
+                PUSH(solver->clause, lit);
+                add_internal_clause_to_proof(solver);
+                CLEAR_STACK(solver->clause);
+            }
         } else { 
             backtrack(solver, solver->level - 1);
         }
@@ -5526,6 +5531,11 @@ failed_literal_probing(struct satch *solver)
             assign(solver, NOT(lit), 0);
             change++;
             literals_found++;
+            if (solver->proof){
+                PUSH(solver->clause, NOT(lit));
+                add_internal_clause_to_proof(solver);
+                CLEAR_STACK(solver->clause);
+            }
         } else { 
             backtrack(solver, solver->level - 1);
         }
